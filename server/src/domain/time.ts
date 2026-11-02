@@ -60,3 +60,27 @@ export function toSlotStarts(start: Date, durationMin: number): Date[] {
   }
   return slots;
 }
+
+export function isWithinWindow(
+  start: Date,
+  end: Date,
+  windowStart: Date,
+  windowEnd: Date,
+): boolean {
+  assertValidDate(start);
+  assertValidDate(end);
+  assertValidDate(windowStart);
+  assertValidDate(windowEnd);
+
+  if (
+    end.getTime() <= start.getTime() ||
+    windowEnd.getTime() <= windowStart.getTime()
+  ) {
+    throw new Error("Interval end must be after start");
+  }
+
+  return (
+    start.getTime() >= windowStart.getTime() &&
+    end.getTime() <= windowEnd.getTime()
+  );
+}

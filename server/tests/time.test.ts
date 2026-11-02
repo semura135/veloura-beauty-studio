@@ -4,6 +4,7 @@ import {
   isAligned,
   intervalsOverlap,
   toSlotStarts,
+  isWithinWindow,
 } from "../src/domain/time";
 
 describe("addMinutes", () => {
@@ -130,5 +131,81 @@ describe("toSlotStarts", () => {
 
   it("throws on an invalid date", () => {
     expect(() => toSlotStarts(new Date("nope"), 60)).toThrow("Invalid date");
+  });
+});
+
+describe("with in window", () => {
+  it("booking fully inside the window", () => {
+    expect(
+      isWithinWindow(
+        new Date("2026-11-02T10:15:00Z"),
+        new Date("2026-11-02T11:30:00Z"),
+        new Date("2026-11-02T10:00:00Z"),
+        new Date("2026-11-02T12:00:00Z"),
+      ),
+    ).toBe(true);
+  });
+  it("Starts before the window opens", () => {
+    expect(
+      isWithinWindow(
+        new Date("2026-11-02T03:15:00Z"),
+        new Date("2026-11-02T11:30:00Z"),
+        new Date("2026-11-02T10:00:00Z"),
+        new Date("2026-11-02T12:00:00Z"),
+      ),
+    ).toBe(false);
+  });
+  it("Ends after the window closes", () => {
+    expect(
+      isWithinWindow(
+        new Date("2026-11-02T10:15:00Z"),
+        new Date("2026-11-02T12:30:00Z"),
+        new Date("2026-11-02T10:00:00Z"),
+        new Date("2026-11-02T12:00:00Z"),
+      ),
+    ).toBe(false);
+  });
+  it("Booking exactly equals the window", () => {
+    expect(
+      isWithinWindow(
+        new Date("2026-11-02T10:00:00Z"),
+        new Date("2026-11-02T12:00:00Z"),
+        new Date("2026-11-02T10:00:00Z"),
+        new Date("2026-11-02T12:00:00Z"),
+      ),
+    ).toBe(true);
+  });
+
+  it("Invalid date", () => {
+    expect(() =>
+      isWithinWindow(
+        new Date("nope"),
+        new Date("2026-11-02T11:30:00Z"),
+        new Date("2026-11-02T10:00:00Z"),
+        new Date("2026-11-02T12:00:00Z"),
+      ),
+    ).toThrow("Invalid date");
+  });
+
+  it("throws when end is before start", () => {
+    expect(() =>
+      isWithinWindow(
+        new Date("2026-11-02T12:00:00Z"),
+        new Date("2026-11-02T11:00:00Z"),
+        new Date("2026-11-02T10:00:00Z"),
+        new Date("2026-11-02T13:00:00Z"),
+      ),
+    ).toThrow("Interval end must be after start");
+  });
+
+  it("allows a booking that ends exactly at closing time", () => {
+    expect(
+      isWithinWindow(
+        new Date("2026-11-02T11:00:00Z"),
+        new Date("2026-11-02T12:00:00Z"),
+        new Date("2026-11-02T10:00:00Z"),
+        new Date("2026-11-02T12:00:00Z"),
+      ),
+    ).toBe(true);
   });
 });
