@@ -25,3 +25,22 @@ export function isAligned(
   }
   return false;
 }
+
+export function intervalsOverlap(
+  aStart: Date,
+  aEnd: Date,
+  bStart: Date,
+  bEnd: Date,
+): boolean {
+  assertValidDate(aStart);
+  assertValidDate(aEnd);
+  assertValidDate(bStart);
+  assertValidDate(bEnd);
+  if (
+    aEnd.getTime() <= aStart.getTime() ||
+    bEnd.getTime() <= bStart.getTime()
+  ) {
+    throw new Error("Interval end must be after start");
+  }
+  return aStart.getTime() < bEnd.getTime() && bStart.getTime() < aEnd.getTime();
+}
