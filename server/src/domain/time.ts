@@ -44,3 +44,19 @@ export function intervalsOverlap(
   }
   return aStart.getTime() < bEnd.getTime() && bStart.getTime() < aEnd.getTime();
 }
+
+export function toSlotStarts(start: Date, durationMin: number): Date[] {
+  assertValidDate(start);
+  if (!isAligned(start, SLOT_MINUTES)) {
+    throw new Error("Start must be aligned to 15 minutes");
+  }
+  if (durationMin <= 0 || durationMin % SLOT_MINUTES !== 0) {
+    throw new Error("Duration must be a positive multiple of 15");
+  }
+  const slotCount = durationMin / SLOT_MINUTES;
+  const slots: Date[] = [];
+  for (let i = 0; i < slotCount; i++) {
+    slots.push(addMinutes(start, i * SLOT_MINUTES));
+  }
+  return slots;
+}
